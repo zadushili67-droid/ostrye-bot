@@ -1,5 +1,4 @@
-import os
-import threading
+import os, threading
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
@@ -11,16 +10,16 @@ class H(BaseHTTPRequestHandler):
         self.send_response(200)
         self.end_headers()
         self.wfile.write(b"ok")
-    def log_message(self, *a): return
+    def log_message(self,*a): return
 
 def http():
-    HTTPServer(("0.0.0.0", int(os.environ.get("PORT", 10000))), H).serve_forever()
+    HTTPServer(("0.0.0.0", int(os.environ.get("PORT",10000))), H).serve_forever()
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("✂️ OSTRYE работает! Кидай фото анфас!")
+    await update.message.reply_text("OSTRYE работает! Кидай фото!")
 
 async def photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("📸 Фото получил!")
+    await update.message.reply_text("Фото получил! Скоро подключу ИИ.")
 
 def main():
     threading.Thread(target=http, daemon=True).start()
