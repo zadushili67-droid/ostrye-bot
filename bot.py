@@ -1,4 +1,4 @@
-import os, logging, threading, time
+import os, threading, time
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
@@ -6,39 +6,31 @@ from telegram.ext import Application, CommandHandler, MessageHandler, filters, C
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 WEBAPP_URL = os.getenv("WEBAPP_URL", "https://ostrye-ai.vercel.app")
 
-logging.basicConfig(level=logging.INFO)
-
-class HealthHandler(BaseHTTPRequestHandler):
+class H(BaseHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200)
         self.end_headers()
-        self.wfile.write(b"OSTRYE BOT LIVE")
-    def log_message(self, *args):
-        return
+        self.wfile.write(b"OK")
+    def log_message(self,*a): return
 
-def run_health():
-    port = int(os.environ.get("PORT", 10000))
-    HTTPServer(("0.0.0.0", port), HealthHandler).serve_forever()
+def run_h():
+    HTTPServer(("0.0.0.0", int(os.environ.get("PORT",10000))), H).serve_forever()
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    kb = [[InlineKeyboardButton("🌐 ОТКРЫТЬ AI БОТ", web_app=WebAppInfo(url=WEBAPP_URL))]]
-    await update.message.reply_text("✂️ OSTRYE NVR - Кидай фото анфас, сделаю 8 причесок!", reply_markup=InlineKeyboardMarkup(kb))
+    kb=[[InlineKeyboardButton("🌐 ОТКРЫТЬ AI", web_app=WebAppInfo(url=WEBAPP_URL))]]
+    await update.message.reply_text("OSTRYE - Кидай фото!", reply_markup=InlineKeyboardMarkup(kb))
 
-async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("📸 Фото получил! Анализирую форму лица...")
+async def photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("Фото получил!")
 
 def main():
-    threading.Thread(target=run_health, daemon=True).start()
+    threading.Thread(target=run_h, daemon=True).start()
     if not BOT_TOKEN:
-        print("BOT_TOKEN missing!")
         while True: time.sleep(3600)
-    app = Application.builder().token(BOT_TOKEN).build()
-    app.add_handler(CommandHandler("start", handle_photo))
-    app.add_handler(CommandHandler("start", handle_photo))
-    app.add_handler(MessageHandler(filters.PHOTO, handle_photo))
+    app=Application.builder().token(BOT_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
-    print("OSTRYE BOT STARTED")
+    app.add_handler(MessageHandler(filters.PHOTO, photo))
     app.run_polling()
 
-if __name__ == "__main__":
+if __name__=="__main__":
     main()
